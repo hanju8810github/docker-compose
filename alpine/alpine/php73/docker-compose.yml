@@ -1,0 +1,51 @@
+version: '3.5'
+
+services:
+  nginx:
+    build:
+      context: ./Dockerfiles
+      dockerfile: nginx.Dockerfile
+    ports: 
+      - "8080:80"
+    links: 
+      - php-fpm
+    container_name: nginx
+
+  php-fpm:
+    build: 
+      context: ./Dockerfiles
+      dockerfile: php-fpm.Dockerfile
+    links: 
+      - mysql
+      - redis
+    volumes:
+      - ./app:/var/www/app
+    container_name: php-fpm
+
+  redis:
+    build: 
+      context: ./Dockerfiles
+      dockerfile: redis.Dockerfile
+    container_name: redis
+
+# MySQLを使う場合はこっち
+  mysql:
+    build: 
+      context: ./Dockerfiles
+      dockerfile: mysql.Dockerfile
+    ports: 
+      - "13306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    container_name: mysql
+
+# PostgreSQLを使う場合はこっち
+# postgres:
+#   build: 
+#     context: ./Dockerfiles
+#     dockerfile: postgres.Dockerfile
+#   ports: 
+#     - "15432:5432"
+#   volumes:
+#     - ./db:/var/lib/mysql パスあってるのか？
+#   container_name: postgres
