@@ -5,18 +5,15 @@ FROM php:7.4-fpm-alpine
 RUN apk update && apk upgrade
 RUN apk add --no-cache libzip-dev zip freetype libpng libjpeg libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev
 RUN docker-php-ext-configure zip
-RUN docker-php-ext-install zip && docker-php-ext-install pdo_mysql 
+RUN docker-php-ext-install zip pdo_mysql opcache
 
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
+
 RUN install-php-extensions gd
 RUN docker-php-ext-configure gd \
-    --enable-gd \
-    --with-zlib \
-    --with-freetype \
-    --with-png-dir=/usr/include/ \
-    --with-jpeg && \
-  NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
-  docker-php-ext-install -j${NPROC} gd
+    --with-freetype=/usr/include/ \
+    --with-jpeg=/usr/include/
+RUN install-php-extensions redis
 
   # Postgres用
   # RUN set -ex \
